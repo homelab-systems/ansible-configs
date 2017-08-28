@@ -1,0 +1,17 @@
+---
+
+- name: linux common setup
+  hosts: all
+  become: yes
+
+  vars_prompt:
+
+    - name: host_name
+      prompt: host name
+      private: no
+
+  vars:
+    domain_joined: n
+
+  roles:
+    - linux_common

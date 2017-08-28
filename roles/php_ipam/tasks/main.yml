@@ -1,0 +1,22 @@
+---
+
+- name: install php-ipam
+  yum:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+    - httpd
+    - mariadb-server
+    - php
+    - php-cli
+    - php-gd
+    - php-common
+    - php-ldap
+    - php-pdo
+    - php-pear
+    - php-snmp
+    - php-xml
+    - php-xml
+    - php-mysql
+    - git 

@@ -1,0 +1,35 @@
+---
+- name: deploy windows domain controller
+  hosts: all
+
+  vars_prompt:
+
+    - name: host_name
+      prompt: Computer hostname
+      private: no
+
+    - name: domain
+      prompt: Enter domain name
+      private: no
+
+    - name: domain_admin_user
+      prompt: Domain Admin user
+      private: no
+
+    - name: domain_admin_password
+      prompt: Domain Admin password
+
+    - name: safe_mode_password
+      prompt: Safe mode password
+      private: yes
+      confirm: yes
+
+  vars:
+    primary_dns: 127.0.0.1
+    dns_servers: 
+      - 8.8.8.8
+      - 8.8.4.4
+
+  roles:
+    - windows_server
+    - domain_controller

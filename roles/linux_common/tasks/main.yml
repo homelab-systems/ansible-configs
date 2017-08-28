@@ -1,0 +1,96 @@
+---
+#required variables:
+#domain_joined
+#host_name
+#
+#optional variables:
+#join_user
+#computer_ou
+#join_password
+
+- name: changes hostname
+  hostname: 
+    name: "{{host_name}}"
+
+- name: set root password
+  user:
+    name: root
+    group: root
+    password: $6$cG7sIKmwk0YRaBce$Xwwg2KvK0RGy150zJQWK1Rgp2A74vDCVokis2hhdmSjcqTqO0Lx.jEJak5SiCOTaAhtefyIZBnAwrLNgvHeLP.
+
+- name: disable config account
+  name: config
+  state: absent
+
+- name: add admin 
+  user:
+    name: administrator
+    group: wheel
+    password: $6$K85e4164Drb19FeW$6GkAyOGDO7YixaMMghnK8q.RzrPQzkGQtsSNewpaN/VhNSNtoz68K968DCWsVtuUxdbQVOHn75NCuprNd6Gck1
+  when: ansible_distribution == "CentOS"
+
+- name: add ssh key for admin user
+  authorized_key:
+    user: administrator
+    state: present
+    key: "{{item}}"
+  with_items:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0gaDkB9pbqRP6M9+K8sl6V9f1jkcZJAdogn1qS59bV372FNLtVKJB9FBZyUttjfhrruiV+ZZok2i2u07br9L5S6ARKPxzIitzrtQuvsbGtDwJtOrXsgMn4hQe+7x9JCGlOQ+xbmniC2MiCUbUTlBCDNA+TAaH9XnoRMyWUyVUJbU+u9zlcT+8OC6wvEk0GxjukcNuwiANuvfjjiow9e3qA1wUQukLGjSWDufWLp9hJMKkVHQ1m9I/Yw84LejBKq4YizhfjMah9yoq7KrnzURkO6i2T6aSYT/1APWm+jw9iOH9VP+xbVD9RAMFvb49yU11rLVgS3e/+tdosZIRtFYJ pbove-pub
+  
+- name: install epel-release
+  yum:
+    name: epel-release
+    state: present
+    update_cache: yes
+
+- name: install base packages
+  yum:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+    - sssd
+    - sssd-ad
+    - python2
+    - python2-pip
+    - python34
+    - python34-pip
+    - realmd
+    - ntp
+  when: ansible_distribution == "CentOS"
+
+- name: copy ntp config
+  copy: 
+    src: ntp.conf
+    dest: /etc/ntp.conf
+  notify: ensure_ntpd
+
+- name: join domain
+  command: >
+    echo "{{join_password}}" | realm join -U {{join_user}} --computer-OU {{computer_ou}} 
+    --unattended --install=/
+  args:
+    creates: /etc/sssd/sssd.conf
+  when: domain_joined == "y"
+
+- name: set gpo enforcing
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    insertafter: "^[domain"
+    line: ad_gpo_access_control = enforcing
+  notify: ensure_sssd
+  when: domain_joined == "y"
+
+
+
+#might need this
+#- name: permit accounts
+#  command: realm permit {{item}}@{{domain}}
+#  with_items:
+#    - linux-admins
+#  when: domain_joined == "y"
+
+#- name: copy sudoers files for domain groups/users
+#  copy: "{{item}}"
+#  with_items:
+#  when: domain_joined == "y"

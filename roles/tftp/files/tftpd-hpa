@@ -1,0 +1,6 @@
+#Defaults for tftpd-hpa
+RUN_DAEMON="yes"
+TFTP_USERNAME="tftp"
+OPTIONS="-l -s /tftpboot"
+TFTP_ADDRESS="0.0.0.0:69"
+TFTP_OPTIONS="--secure"

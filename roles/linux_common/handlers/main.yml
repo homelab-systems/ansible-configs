@@ -1,0 +1,13 @@
+---
+
+- name: ensure_ntpd
+  service:
+    name: ntpd
+    state: restarted
+    enabled: yes
+
+- name: ensure_sssd
+  service:
+    name: sssd
+    state: restarted
+    enabled: yes

@@ -1,0 +1,12 @@
+---
+name: Install tftp
+apt: name=tftpd-hpa state=present 
+
+name: Set configuration
+copy: src=tftpd-hpa dest=/etc/default/
+
+name: start and enable tftpd
+service: name=tftpd enabled=yes state=started
+
+name: set /tftpboot to 777
+file: state=directory mode=0777

@@ -3,7 +3,7 @@
   hosts: vcenter
 
   tasks:
-    - name: add vmware datacenter
+    - name: add esx host datacenter
       vmware_datacenter:
         datacenter_name: "{{datacenter}}"
         state: present
@@ -25,46 +25,4 @@
         username: "{{vcenter_admin}}"
         password: "{{vcenter_password}}"
         validate_certs: no
-      delegate_to: localhost
-
-    - name: add vsan cluster
-      vmware_cluster:
-        cluster_name: vSAN
-        datacenter_name: "{{datacenter}}"
-        enable_vsan: yes
-        state: present
-        hostname: "{{inventory_hostname}}"
-        username: "{{vcenter_admin}}"
-        password: "{{vcenter_password}}"
-        validate_certs: no
-      delegate_to: localhost
-
-    - name: add vswitch for vmkernel
-      vmware_dvswitch:
-        switch_name: vsan_switch
-        uplink_quantity: 2
-        discovery_proto: lldp
-        mtu: 9000
-        datacenter_name: "{{datacenter}}"
-        username: "{{vcenter_admin}}"
-        password: "{{vcenter_password}}"
-        hostname: "{{inventory_hostname}}"
-        state: present
-        validate_certs: no
-      delegate_to: localhost
-
-    - name: add portgroup to vswitch
-      vmware_dvs_portgroup:
-        switch_name: vsan_switch
-        portgroup_name: vsan_ports
-        num_ports: 200
-        portgroup_type: earlyBinding
-        vlan_id: "{{vlan_id}}"
-        nic_name: "{{item}}"
-        username: "{{vcenter_admin}}"
-        password: "{{vcenter_password}}"
-        hostname: "{{inventory_hostname}}"
-        state: present
-        validate_certs: no
-      delegate_to: localhost
-    
+      delegate_to: localhost    

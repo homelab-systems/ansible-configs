@@ -1,0 +1,42 @@
+---
+- name: create vm
+  hosts: all
+
+  
+  vars_prompt:
+
+    - name: vm_name
+      prompt: Name of VM
+      private: no
+
+    - name: template
+      prompt: Base os template for VM
+      private: no
+
+    - name: playbook_name
+      prompt: playbook
+      private: no
+
+    - name: vcenter_username
+      prompt: Vcenter Username
+      private: no
+
+    - name: vcenter_password
+      prompt: Vcenter Password
+      private: yes
+      confirm: yes
+
+  tasks:
+    - name: provision vcenter machine
+      vsphere_guest:
+        vcenter_hostname: vcenter1.homelab.systems
+        guest: "{{vm_name}}"
+        cluster: cluster-1
+        template: yes
+        template_src: "{{template}}"
+        state: present
+        username: "{{vcenter_username}}"
+        password: "{{vcenter_password}}"
+        validate_certs: no
+
+    - include: "{{playbook_name}}"

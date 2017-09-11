@@ -5,36 +5,9 @@
 
   tasks:
 
-    - name: add nics from esxi esxi hypervisors to vsan_switch dvs
-      vmware_vswitch:
-        hostname: "{{inventory_hostname}}"
-        username: "{{esxi_username}}"
-        password: "{{esxi_password}}"
-        state: present
-        switch_name: vsan_switch
-        nic_name: "{{item}}"
-      with_items:
-        - vmnic2
-        - vmnic3
-      delegate_to: localhost
-
-    - name: add vsan vmkernel
-      vmware_vmkernel:
-        hostname: "{{inventory_hostname}}"
-        username: "{{esxi_username}}"
-        password: "{{esxi_password}}"
-        vswitch_name: vsan_switch
-        portgroup_name: vsan_ports
-        vland_id: 0
-        ip_address: "{{vsan_vmkernel_ip}}"
-        subnet_mask: 255.255.255.0
-        enable_vsan: yes
-      delegate_to: localhost
-
-
     - name: add hosts
       vmware_host:
-        cluster_name: "{{item}}"
+        cluster_name: "{{cluster}}"
         datacenter_name: "{{datacenter}}"
         esxi_hostname: "{{inventory_hostname}}"
         esxi_password: "{{esxi_password}}"
@@ -43,9 +16,5 @@
         username: "{{vcenter_admin}}"
         password: "{{vcenter_password}}"
         validate_certs: no
-        state: present
-      with_items:
-        - vSAN
-        - "{{cluster}}"
-        
+        state: present    
       delegate_to: localhost

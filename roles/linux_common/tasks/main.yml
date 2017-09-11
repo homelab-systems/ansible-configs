@@ -18,10 +18,6 @@
     group: root
     password: $6$cG7sIKmwk0YRaBce$Xwwg2KvK0RGy150zJQWK1Rgp2A74vDCVokis2hhdmSjcqTqO0Lx.jEJak5SiCOTaAhtefyIZBnAwrLNgvHeLP.
 
-- name: disable config account
-  name: config
-  state: absent
-
 - name: add admin 
   user:
     name: administrator
@@ -81,16 +77,11 @@
   notify: ensure_sssd
   when: domain_joined == "y"
 
-
-
-#might need this
-#- name: permit accounts
-#  command: realm permit {{item}}@{{domain}}
-#  with_items:
-#    - linux-admins
-#  when: domain_joined == "y"
-
 #- name: copy sudoers files for domain groups/users
 #  copy: "{{item}}"
 #  with_items:
 #  when: domain_joined == "y"
+
+- name: disable config account
+  name: config
+  state: absent

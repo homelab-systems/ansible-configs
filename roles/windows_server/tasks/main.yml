@@ -3,6 +3,8 @@
 #dns_servers
 #host_name
 #domain
+
+
 - name: computer name if  domain unspecificied
   script: win_hostname.ps1 -hostname "{{host_name}}"
   register: win_rename
@@ -56,6 +58,10 @@
     state: present
   register: domain_join
   when: domain_joined == "y"
+
+- name: remove config user
+  name: config
+  state: absent
 
 - name: restart if required
   win_reboot:

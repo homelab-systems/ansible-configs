@@ -1,0 +1,3 @@
+---
+vcenter_server: vcenter1.internal.homelab.systems
+datacenter: datacenter1

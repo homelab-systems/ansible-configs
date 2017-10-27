@@ -8,22 +8,15 @@
 #computer_ou
 #join_password
 
-- name: changes hostname
+- name: change hostname
   hostname: 
     name: "{{host_name}}"
 
-- name: set root password
-  user:
-    name: root
-    group: root
-    password: $6$cG7sIKmwk0YRaBce$Xwwg2KvK0RGy150zJQWK1Rgp2A74vDCVokis2hhdmSjcqTqO0Lx.jEJak5SiCOTaAhtefyIZBnAwrLNgvHeLP.
-
-- name: add admin 
+- name: add admin user
   user:
     name: administrator
-    group: wheel
-    password: $6$K85e4164Drb19FeW$6GkAyOGDO7YixaMMghnK8q.RzrPQzkGQtsSNewpaN/VhNSNtoz68K968DCWsVtuUxdbQVOHn75NCuprNd6Gck1
-  when: ansible_distribution == "CentOS"
+    groups: wheel
+    append: yes
 
 - name: add ssh key for admin user
   authorized_key:
@@ -52,18 +45,33 @@
     - python34
     - python34-pip
     - realmd
-    - ntp
+    - oddjob
+    - oddjob-mkhomedir
+    - chrony
   when: ansible_distribution == "CentOS"
+
+- name: install python packages
+  pip:
+    name: "{{item}}"
+    state: present
+    executable: pip3
+  with_items:
+    - sh
+
+- name: copy hosts file
+  template:
+    src: hosts
+    dest: /etc/hosts
 
 - name: copy ntp config
   copy: 
-    src: ntp.conf
-    dest: /etc/ntp.conf
+    src: chrony.conf
+    dest: /etc/chrony.conf
   notify: ensure_ntpd
 
 - name: join domain
   command: >
-    echo "{{join_password}}" | realm join -U {{join_user}} --computer-OU {{computer_ou}} 
+    echo "{{domain_password}}" | realm join -U {{domain_user}} --computer-OU {{computer_ou}} 
     --unattended --install=/
   args:
     creates: /etc/sssd/sssd.conf
@@ -77,11 +85,22 @@
   notify: ensure_sssd
   when: domain_joined == "y"
 
-#- name: copy sudoers files for domain groups/users
-#  copy: "{{item}}"
-#  with_items:
-#  when: domain_joined == "y"
+- name: copy sudoers files for domain groups/users
+  copy: 
+    src: "{{item}}"
+    dest: /etc/sudoers.d/
+    mode: 0440
+  with_items:
+    - unix-wheel
+  when: domain_joined == "y"
 
-- name: disable config account
-  name: config
-  state: absent
+- name: copy ifcfg-eth0 config
+  template:
+    src: ifcfg-eth0
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+
+- name: copy sshd config
+  copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+  notify: ensure_sshd

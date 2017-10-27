@@ -30,12 +30,22 @@
     state: domain_controller
   register: domain_controller
 
-- name: set dns
+- name: set dns when not pdc
   win_dns_client:
     adapter_names: "*"
     ipv4_addresses:
-      - 127.0.0.1
       - "{{primary_dns}}"
+      - "{{static_ip}}"
+      - 127.0.0.1
+  when: pdc.lower() != "y"
+
+- name: set dns when pdc
+  win_dns_client:
+    adapter_names: "*"
+    ipv4_addresses:
+      - "{{static_ip}}"
+      - 127.0.0.1
+  when: pdc.lower() == "y"
 
 - name: reboot if required
   win_reboot:

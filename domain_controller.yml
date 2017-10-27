@@ -1,15 +1,13 @@
 ---
 - name: deploy windows domain controller
   hosts: all
+  vars_files:
+    - network_info.yml
 
   vars_prompt:
 
     - name: host_name
       prompt: Computer hostname
-      private: no
-
-    - name: domain
-      prompt: Enter domain name
       private: no
 
     - name: domain_admin_user
@@ -19,16 +17,27 @@
     - name: domain_admin_password
       prompt: Domain Admin password
 
+    - name: static_ip
+      prompt: Static ip address
+      private: no
+
     - name: safe_mode_password
       prompt: Safe mode password
       private: yes
       confirm: yes
 
-  vars:
-    primary_dns: 127.0.0.1
-    dns_servers: 
-      - 8.8.8.8
-      - 8.8.4.4
+    - name: primay_dns
+      prompt: primary dns server (Not required if this is the PDC)
+      private: no
+
+    - name: pdc
+      prompt: primary domain controller(y/n)
+      private: no
+      default: "n"
+
+  post_tasks:
+    - name: remove old ip address
+      win_command: Remote-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress {{ansible_default_ipv4}}
 
   roles:
     - windows_server

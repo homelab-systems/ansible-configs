@@ -1,0 +1,67 @@
+---
+- name: create vm
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - vmware_data.yml
+  
+  vars_prompt:
+
+    - name: vm_name
+      prompt: Name of VM
+      private: no
+
+    - name: template
+      prompt: template
+      private: no
+
+    - name: folder
+      prompt: folder for VM
+      private: no
+      default: "/"
+
+    - name: domain_username
+      prompt: Vcenter Username
+      private: no
+
+    - name: domain_password
+      prompt: Vcenter Password
+      private: yes
+
+  tasks:
+
+    - fail:
+        msg: Template is required
+      when: template == ''
+
+    - name: provision vm 
+      vmware_guest:
+        datacenter: "{{datacenter}}"
+        hostname: "{{vcenter_server}}"
+        name: "{{vm_name}}"
+        template: "{{template}}"
+        folder: "{{folder}}"
+        state: poweredon
+        wait_for_ip_address: yes
+        username: "{{domain_username}}"
+        password: "{{domain_password}}"
+        validate_certs: no
+      delegate_to: 127.0.0.1
+
+    - pause:
+        seconds: 60
+
+    - name: get vmware facts
+      vmware_guest_facts:
+        datacenter: "{{datacenter}}"
+        hostname: "{{vcenter_server}}"
+        name: "{{vm_name}}"
+        folder: "{{folder}}"
+        username: "{{domain_username}}"
+        password: "{{domain_password}}"
+        validate_certs: no
+      register: vm_facts
+      delegate_to: 127.0.0.1
+
+    - debug: 
+        var: vm_facts

@@ -2,12 +2,18 @@
 
 - name: ensure_ntpd
   service:
-    name: ntpd
+    name: chronyd
     state: restarted
     enabled: yes
 
 - name: ensure_sssd
   service:
     name: sssd
+    state: restarted
+    enabled: yes
+
+- name: ensure_sshd
+  service:
+    name: sshd
     state: restarted
     enabled: yes

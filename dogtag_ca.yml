@@ -20,12 +20,12 @@
       prompt: Password for caadmin
       private: yes
 
-    - name: kraadmin_password
-      prompt: Password for kraadmin
-      private: yes
-
     - name: dirman_password
       prompt: Directory manager password
+      private: yes
+
+    - name: client_password
+      prompt: pki client password
       private: yes
 
   vars:

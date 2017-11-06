@@ -38,17 +38,15 @@
     state: present
     update_cache: yes
   with_items:
-    - sssd
-    - sssd-ad
+    - httpd
+    - ipa-client
     - python2
     - python2-pip
     - python34
     - python34-pip
-    - realmd
-    - oddjob
-    - oddjob-mkhomedir
     - chrony
   when: ansible_distribution == "CentOS"
+  notify: ensure_ntpd
 
 - name: install python packages
   pip:
@@ -57,32 +55,25 @@
     executable: pip3
   with_items:
     - sh
+    - pexpect
+
+- name: install python2 pexpect
+  pip:
+    name: pexpect
+    state: present
+    executable: pip2
 
 - name: copy hosts file
   template:
     src: hosts
     dest: /etc/hosts
 
-- name: copy ntp config
-  copy: 
-    src: chrony.conf
-    dest: /etc/chrony.conf
-  notify: ensure_ntpd
-
 - name: join domain
   command: >
-    echo "{{domain_password}}" | realm join -U {{domain_user}} --computer-OU {{computer_ou}} 
-    --unattended --install=/
+    ipa-client-install --domain="{{domain}}" --realm="{{domain|upper}}" -p "{{domain_user}}" --password="{{domain_password}}"
+    --enable-dns-updates -U
   args:
     creates: /etc/sssd/sssd.conf
-  when: domain_joined == "y"
-
-- name: set gpo enforcing
-  lineinfile:
-    path: /etc/sssd/sssd.conf
-    insertafter: "^[domain"
-    line: ad_gpo_access_control = enforcing
-  notify: ensure_sssd
   when: domain_joined == "y"
 
 - name: copy sudoers files for domain groups/users
@@ -104,3 +95,15 @@
     src: sshd_config
     dest: /etc/ssh/sshd_config
   notify: ensure_sshd
+
+- include_tasks: netdata.yml
+
+- name: configure firewall
+  firewalld:
+    port: "{{item}}"
+    permanent: true
+    state: enabled
+  notify: ensure_firewalld
+  with_items:
+    - 22/tcp
+    - 19999/tcp

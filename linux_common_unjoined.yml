@@ -12,6 +12,10 @@
       prompt: host name
       private: no
 
+    - name: static_ip
+      prompt: Enter static ip
+      private: no
+
   vars:
     domain_joined: n
 

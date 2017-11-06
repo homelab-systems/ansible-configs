@@ -1,0 +1,6 @@
+---
+- name: ensure_pki
+  service:
+    name: pki-tomcatd@pki-tomcat.service
+    state: started
+    enabled: yes

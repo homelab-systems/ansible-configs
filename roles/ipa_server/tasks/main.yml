@@ -1,0 +1,19 @@
+---
+
+- name: install packages
+  yum: 
+    name: "{{item}}"
+    state: present
+  with_items:
+    - freeipa-server
+    - ipa-server-dns
+
+- name: configure ipa server
+  command: >
+    ipa-server-install --ds-password="{{dirman_password}}" --admin-password="{{admin_password}}" --domain="{{domain}}"
+    --realm="{{domain | upper}}" --setup-dns --no-forwarders --no-host-dns --auto-reverse -U
+  when: replica.lower() == "n"
+
+- name: configure ip_server replica
+  command: ip-replica-install  --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
+  when: replica.lower() == "y"

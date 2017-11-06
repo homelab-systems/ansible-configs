@@ -6,7 +6,16 @@
     state: present
   with_items:
     - 389-ds-base
+    - pki-base
     - pki-server
+    - pki-ca
+
+- name: add pam_limits to system-auth
+  lineinfile:
+    path: /etc/pam.d/system-auth
+    insertafter: "# User changes will be destroyed the next time authconfig is run."
+    line: session required pam_limits.so
+  register: pam
 
 - name: ensure sysctl.conf is configured
   blockinfile:
@@ -29,25 +38,42 @@
     path: /etc/security/limits.conf
     line: "*        -        nofile        8192"
 
-- name: copy ca.cfg to /tmp
+- name: copy cfgs to /tmp
   template:
-    src: ca.cfg
-    dest: /tmp/ca.cfg
+    src: "{{item}}"
+    dest: /tmp/
+  with_items:
+    - ca.cfg
+    - ds.cfg
+
+- name: reboot
+  shell: sleep 2 && reboot
+  async: 1
+  poll: 0
+  when: pam.changed
+
+- name: wait for connection
+  wait_for_connection:
+    delay: 10
 
 - name: run setup-ds.pl
-  shell: >
-    setup-ds.pl --silent\
-    General.FullMachineName="{{host_name}}.{{domain}}"\
-    General.SuiteSPotUserID=nobody\
-    General.SuiteSPotGroup=nobody\
-    slapd.ServerPort=389\
-    slapd.ServerIdentifier=pki-tomcat\
-    slapd.Suffix=dc=internal,dc=homelab,dc=systems\
-    slapd.RootDN="cn=Directory Manager"\
-    slapd.RootDNPwd="{{dirman_password}}"
+  command: setup-ds.pl --silent --file=/tmp/ds.cfg
+  when: sysctl.changed
+
+- name: ensure 389-ds is running
+  service:
+    name: dirsrv.target
+    state: started
+    enabled: yes
 
 - name: run pkispawn for CA
   command: pkispawn -s CA -f /tmp/ca.cfg
+  notify: ensure_pki
 
-- name: run pkispawn for KRA
-  command: pkispawn -s KRA -f /tmp/ca.cfg
+#- name: remove sensitive config files
+#  file:
+#    path: /tmp/{{item}}
+#    state: absent
+#  with_items:
+#    - ca.cfg
+#    - ds.cfg

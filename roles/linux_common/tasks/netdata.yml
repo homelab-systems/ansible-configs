@@ -1,0 +1,61 @@
+---
+
+- name: check if netdata is installed
+  file:
+    path: /etc/netdata/
+    state: directory
+  register: installed_netdata
+
+- name: get netdata installer
+  get_url:
+    url: https://my-netdata.io/kickstart.sh
+    dest: /tmp/kickstart.sh
+  when: installed_netdata.changed
+
+- name: install netdata
+  shell: yes | bash /tmp/kickstart.sh
+  when: installed_netdata.changed
+
+- name: set netdata host name
+  lineinfile:
+    path: /etc/netdata/netdata.conf
+    line: hostname = {{host_name}}
+    regexp: "# hostname = {{host_name}}"
+    state: present
+    backrefs: yes
+
+- name: bind netdata to localhost
+  lineinfile:
+    path: /etc/netdata/netdata.conf
+    line: bind to = unix:/tmp/netdata.sock
+    regexp: "# bind to = \\*"
+    state: present
+    backrefs: yes
+
+- name: change netdata defualt port
+  lineinfile:
+    path: /etc/netdata/netdata.conf
+    line: default port = 19998
+    regexp: "# default port = 19999"
+    state: present
+    backrefs: yes
+
+- name: restart and enable netdata
+  service:
+    name: netdata
+    state: restarted
+    enabled: yes
+
+- name: enable proxy apache module
+  apache2_module:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - proxy
+    - proxy_http
+
+- name: copy apache config file
+  template:
+    src: netdata.conf
+    dest: /etc/httpd/conf.d/
+  notify: ensure_apache

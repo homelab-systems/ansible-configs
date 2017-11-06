@@ -96,7 +96,7 @@
     dest: /etc/ssh/sshd_config
   notify: ensure_sshd
 
-- include_tasks: netdata.yml
+- include: netdata.yml
 
 - name: configure firewall
   firewalld:

@@ -19,5 +19,12 @@
   vars:
     domain_joined: n
 
+  post_tasks:
+    - name: restart
+      shell: sleep 2 && reboot
+      async: 1
+      poll: 0
+
+
   roles:
     - linux_common

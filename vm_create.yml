@@ -49,14 +49,14 @@
       delegate_to: 127.0.0.1
 
     - pause:
-        seconds: 60
+        seconds: 10
 
     - name: get vmware facts
       vmware_guest_facts:
         datacenter: "{{datacenter}}"
         hostname: "{{vcenter_server}}"
         name: "{{vm_name}}"
-        folder: "{{folder}}"
+        folder: "{{datacenter}}/vm/{{folder}}"
         username: "{{domain_username}}"
         password: "{{domain_password}}"
         validate_certs: no
@@ -64,4 +64,4 @@
       delegate_to: 127.0.0.1
 
     - debug: 
-        var: vm_facts
+        var: vm_facts.instance.hw_eth0.ipaddresses

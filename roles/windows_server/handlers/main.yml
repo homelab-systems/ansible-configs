@@ -1,0 +1,7 @@
+---
+
+- name: ensure_ntp
+  win_service:
+    name: W32Time
+    state: started
+    start_mode: auto

@@ -1,6 +1,8 @@
 ---
-- name: deploy windows domain controller
+
+- name: deploy windows
   hosts: all
+
   vars_files:
     - network_info.yml
 
@@ -14,34 +16,17 @@
       prompt: Computer hostname
       private: no
 
-    - name: domain_admin_user
+    - name: domain_user
       prompt: Domain Admin user
       private: no
 
-    - name: domain_admin_password
+    - name: domain_password
       prompt: Domain Admin password
 
     - name: static_ip
       prompt: Static ip address
       private: no
 
-    - name: safe_mode_password
-      prompt: Safe mode password
-      private: yes
-
-    - name: primary_dns
-      prompt: primary dns server (Not required if this is the PDC)
-      private: no
-
-
-    - name: pdc
-      prompt: primary domain controller(y/n)
-      private: no
-      default: "n"
-
-  vars:
-    domain_user: "{{domain_admin_user}}"
-    domain_password: "{{domain_admin_password}}"
 
   post_tasks:
     - name: set new IP
@@ -55,4 +40,3 @@
 
   roles:
     - windows_server
-    - domain_controller

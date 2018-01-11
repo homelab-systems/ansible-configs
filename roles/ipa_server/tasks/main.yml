@@ -7,13 +7,38 @@
   with_items:
     - freeipa-server
     - ipa-server-dns
+    - haveged
+  register: ipa_servers
+
+- name: start and enable haveged
+  service:
+    name: haveged
+    state: started
+    enabled: yes
+    use: service
+
+- name: set firewall
+  firewalld:
+    service: "{{item}}"
+    state: enabled
+    permanent: yes
+  with_items:
+    - freeipa-ldaps
+    - freeipa-ldap
+    - freeipa-replication
+    - kerberos
+    - https
+    - http
+    - dns
+    - ntp
+    - kpasswd
 
 - name: configure ipa server
   command: >
     ipa-server-install --ds-password="{{dirman_password}}" --admin-password="{{admin_password}}" --domain="{{domain}}"
-    --realm="{{domain | upper}}" --setup-dns --no-forwarders --no-host-dns --auto-reverse -U
-  when: replica.lower() == "n"
+    --realm="{{domain | upper}}" --setup-dns --no-forwarders --no-host-dns --auto-reverse -U --allow-zone-overlap
+  when: replica.lower() == "n" and ipa_servers.changed
 
 - name: configure ip_server replica
-  command: ip-replica-install  --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
-  when: replica.lower() == "y"
+  command: ipa-replica-install  --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
+  when: replica.lower() == "y" and ipa_servers.changed

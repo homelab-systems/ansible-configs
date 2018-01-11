@@ -1,9 +1,8 @@
 ---
 
-- name: deploy a freeipa server
-  become: yes
+- name: linux common setup
   hosts: all
-
+  become: yes
   vars_files:
     - network_info.yml
 
@@ -17,11 +16,6 @@
       prompt: Enter static ip
       private: no
 
-    - name: replica
-      prompt: Is this a replica? [y/n]
-      default: "y"
-      private: no
-
     - name: domain_user
       prompt: domain user
       private: no
@@ -30,16 +24,6 @@
       prompt: domain password
       private: yes
 
-    - name: admin_password
-      prompt: admin password
-      private: yes
-
-    - name: dirman_password
-      prompt: directory manager password
-      private: yes
-
-  vars:
-    domain_joined: "{{replica}}"
 
   post_tasks:
     - name: restart
@@ -47,6 +31,6 @@
       async: 1
       poll: 0
 
+
   roles:
     - linux_common
-    - ipa_server

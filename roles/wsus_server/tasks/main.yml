@@ -1,0 +1,48 @@
+---
+
+- name: install windows feature
+  win_feature:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - UpdateServices
+    - UpdateServices-WidDB
+    - UpdateServices-Services
+  register: features
+
+- name: configure wsus
+  win_shell: \"C:\Program Files\Update Services\Tools\wsusutil.exe postinstall\"
+  when: features.changed
+
+- name: extend partition
+  win_shell: Resize-Partition -DriveLetter C -Size (Get-PartitionSupportedSize -DriveLetter c).sizemax
+  args:
+    executable: powershell
+  when: features.changed
+
+- name: install sqlcmd
+  win_chocolatey:
+    name: sqlserver-cmdlineutils
+
+- name: reboot if required
+  win_reboot:
+  when: features.changed
+
+- name: copy DB main script
+  win_copy:
+    src: WsusDBMaintenance.sql
+    dest: C:\WsusDBMaintenance.sql
+
+- name: scheduled task for WID reindex
+  win_scheduled_task:
+    name: reindex WID
+    executable: sqlcmd
+    arguments: -E -S np:\\.\pipe\MICROSOFT##WID\tsql\query -i C:\WsusDBMaintenance.sql
+    frequency: weekly
+    time: 12pm
+    state: present
+    enabled: yes
+    runlevel: highest
+
+- name: run wsus config script
+  script: wsus_config.ps1

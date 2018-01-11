@@ -96,14 +96,10 @@
     dest: /etc/ssh/sshd_config
   notify: ensure_sshd
 
-- include: netdata.yml
 
 - name: configure firewall
   firewalld:
-    port: "{{item}}"
+    service: ssh
     permanent: true
     state: enabled
   notify: ensure_firewalld
-  with_items:
-    - 22/tcp
-    - 19999/tcp

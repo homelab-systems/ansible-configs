@@ -41,7 +41,7 @@
         name: "{{vm_name}}"
         template: "{{template}}"
         folder: "{{folder}}"
-        state: poweredon
+        state: present
         wait_for_ip_address: yes
         username: "{{domain_username}}"
         password: "{{domain_password}}"

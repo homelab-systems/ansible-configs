@@ -8,24 +8,24 @@
 - name: install windows features
   win_feature:
     name: "{{item}}"
-    include_sub_features: yes
-    include_management_tools: yes
+    include_sub_features: true
+    include_management_tools: true
     state: present
+  register: adds_install
   with_items:
     - AD-Domain-Services
     - DNS
 
-- name: create windows domain
-  win_domain:
-    dns_domain_name: "{{domain}}"
-    safe_mode_password: "{{safe_mode_password}}"
-  register: domain_create
+- name: reboot so powershell module is available
+  win_reboot:
+  when: adds_install.changed
 
-- name: ensure domain controllers
+
+- name: ensure domain controller
   win_domain_controller:
     dns_domain_name: "{{domain}}"
     domain_admin_password: "{{domain_admin_password}}"
-    domain_admin_user: "{{domain_admin_user}}"
+    domain_admin_user: "{{domain_admin_user}}@{{domain}}"
     safe_mode_password: "{{safe_mode_password}}"
     state: domain_controller
   register: domain_controller
@@ -46,7 +46,3 @@
       - "{{static_ip}}"
       - 127.0.0.1
   when: pdc.lower() == "y"
-
-- name: reboot if required
-  win_reboot:
-  when: domain_create.reboot_required == True or domain_controller.reboot_required == True

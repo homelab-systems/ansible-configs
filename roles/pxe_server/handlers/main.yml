@@ -1,0 +1,15 @@
+---
+
+- name: ensure_httpd
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+    use: service
+
+- name: ensure_tftp
+  service:
+    name: xinetd
+    state: restarted
+    enabled: yes
+    use: service

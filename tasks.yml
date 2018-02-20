@@ -1,0 +1,6 @@
+---
+- name: echo hello
+  file:
+    path: hi
+    state: touch
+  delegate_to: localhost

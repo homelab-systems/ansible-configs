@@ -1,0 +1,10 @@
+---
+
+- name: linux common setup
+  hosts: all
+  gather_facts: no
+  become: yes
+
+
+  tasks:
+    - import_tasks: tasks.yml

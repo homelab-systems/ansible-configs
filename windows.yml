@@ -8,10 +8,6 @@
 
   vars_prompt:
 
-    - name: license
-      prompt: enter license
-      private: no
-
     - name: host_name
       prompt: Computer hostname
       private: no

@@ -1,0 +1,33 @@
+---
+
+- name: linux common setup
+  hosts: all
+  become: yes
+  vars_files:
+    - network_info.yml
+
+  vars_prompt:
+
+    - name: host_name
+      prompt: host name
+      private: no
+
+    - name: static_ip
+      prompt: Enter static ip
+      private: no
+
+  vars:
+    domain_joined: n
+    centos_url: http://mirror.rackspace.com/CentOS/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso
+    centos_sha256: bba314624956961a2ea31dd460cd860a77911c1e0a56e4820a12b9c5dad363f5
+
+  post_tasks:
+    - name: restart
+      shell: sleep 2 && reboot
+      async: 1
+      poll: 0
+
+
+  roles:
+    - linux_common
+    - pxe_server

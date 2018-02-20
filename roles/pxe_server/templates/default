@@ -1,0 +1,13 @@
+default menu.c32
+prompt 0
+timeout 300
+ONTIMEOUT 2
+menu title ########## PXE Boot Menu ##########
+label 1
+menu label ^1) Install CentOS 7
+kernel centos7/vmlinuz
+append initrd=centos7/initrd.img method=http://{{static_ip}}/centos7/ devfs=nomount inst.ks=http://{{static_ip}}/kickstart/centos7.cfg
+
+label 2
+menu label ^2) Local Boot
+localboot 0

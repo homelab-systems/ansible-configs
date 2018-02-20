@@ -1,0 +1,21 @@
+---
+
+- name: install roles
+  win_feature:
+    name: AD-Certificate
+    state: present
+    include_management_tools: yes
+    include_sub_feature: yes
+  register: ca_installed
+
+- name: install-ADCSCertificationAuthority
+  script: install-adcs.ps1 -user {{domain_user}} -password "{{domain_password}}" -validity 5
+  when: ca_installed.changed
+
+- name: install-ADCSOnlineResponder
+  win_command: Install-ADCSOnlineResponder -Confirm:$false
+  when: ca_installed.changed
+
+- name: install-ADCSWebEnrollment
+  win_command: Install-ADCSWebEnrollment -Confirm:$false
+  when: ca_installed.changed

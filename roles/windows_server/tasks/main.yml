@@ -9,10 +9,6 @@
   register: win_rename
   when: domain_joined.lower() != "y"
 
-- name: activate windows
-  script: activate_windows.ps1 -License {{license}}
-  when: license != ''
-
 - name: set time zone
   win_timezone:
     timezone: Eastern Standard Time

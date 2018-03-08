@@ -1,5 +1,10 @@
 ---
 
+- name: copy hosts with current IP
+  template:
+    src: hosts
+    dest: /etc/hosts
+
 - name: install packages
   yum: 
     name: "{{item}}"
@@ -42,3 +47,8 @@
 - name: configure ip_server replica
   command: ipa-replica-install  --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
   when: replica.lower() == "y" and ipa_servers.changed
+
+- name: copy hosts with current IP
+  template:
+    src: final_hosts
+    dest: /etc/hosts

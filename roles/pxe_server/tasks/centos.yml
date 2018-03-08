@@ -1,0 +1,49 @@
+- name: make http dirs
+  file:
+    path: "{{item}}"
+    state: directory
+  register: file_creation
+  with_items:
+    - /var/www/html/kickstart
+    - /var/www/html/centos7
+    - /var/www/html/isos
+
+- name: make tftp centos7 dir
+  file:
+    path: /var/lib/tftpboot/centos7
+    state: directory
+
+- name: get netinstall .iso
+  get_url:
+    url: "{{centos_url}}"
+    dest: /var/www/html/isos/centos7.iso
+    checksum: sha256:{{centos_sha256}}
+  register: iso_dl
+
+- name: create mountpoint
+  file:
+    path: /mnt/disk
+    state: directory
+
+- name: mount centos iso fle
+  command: mount -o loop /var/www/html/isos/centos7.iso /mnt/disk
+  when: iso_dl.changed
+
+- name: copy centos iso
+  shell: cp -R /mnt/disk/* /var/www/html/centos7/
+  when: iso_dl.changed
+
+- name: move centos vmlinuz/initrd
+  shell: cp -R /mnt/disk/images/pxeboot/* /var/lib/tftpboot/centos7/
+  when: iso_dl.changed
+
+- name: unmount centos iso
+  command: umount /mnt/disk
+  when: iso_dl.changed
+
+- name: copy kickstart files
+  template:
+    src: "{{item}}"
+    dest: /var/www/html/kickstart
+  with_items:
+    - centos7.cfg

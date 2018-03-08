@@ -1,5 +1,5 @@
 TYPE=Ethernet
-HWADDR={{ansible_default_ipv4.macaddress}}
+HWADDR={{ansible_eth0.macaddress}}
 GATEWAY={{gateway}}
 NETMASK=255.255.255.0 
 IPADDR={{static_ip}}

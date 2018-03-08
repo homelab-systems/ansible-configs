@@ -99,6 +99,7 @@
   template:
     src: ifcfg-eth0
     dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+  register: ip_change
 
 - name: copy sshd config
   copy:

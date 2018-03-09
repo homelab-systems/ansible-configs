@@ -1,17 +1,5 @@
 ---
 
-- name: ensure_apache
-  service:
-    name: httpd
-    state: restarted
-    enabled: yes
-
-- name: ensure_netdata
-  service:
-    name: netdata
-    state: restarted
-    enabled: yes
-
 - name: ensure_ntpd
   service:
     name: chronyd

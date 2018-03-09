@@ -1,3 +1,3 @@
-{{ansible_eth0.ipv4.address}} {{host_name}}.{{domain}} {{host_name}}
+{{static_ip}} {{host_name}}.{{domain}} {{host_name}}
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6

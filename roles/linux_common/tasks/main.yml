@@ -86,15 +86,6 @@
     creates: /etc/sssd/sssd.conf
   when: domain_joined == "y"
 
-- name: copy sudoers files for domain groups/users
-  copy: 
-    src: "{{item}}"
-    dest: /etc/sudoers.d/
-    mode: 0440
-  with_items:
-    - unix-wheel
-  when: domain_joined == "y"
-
 - name: copy ifcfg-eth0 config
   template:
     src: ifcfg-eth0

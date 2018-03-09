@@ -1,10 +1,5 @@
 ---
 
-- name: copy hosts with current IP
-  template:
-    src: hosts
-    dest: /etc/hosts
-
 - name: install packages
   yum: 
     name: "{{item}}"
@@ -38,17 +33,16 @@
     - ntp
     - kpasswd
 
+- name: add static ip
+  command: ip addr add {{static_ip}}/24 dev eth0
+  when: ipa_servers.changed
+
 - name: configure ipa server
   command: >
     ipa-server-install --ds-password="{{dirman_password}}" --admin-password="{{admin_password}}" --domain="{{domain}}"
-    --realm="{{domain | upper}}" --setup-dns --no-forwarders --no-host-dns --auto-reverse -U --allow-zone-overlap
+    --realm="{{domain | upper}}" --ip-address="{{static_ip}}" --setup-dns --no-forwarders --no-host-dns --auto-reverse -U --allow-zone-overlap
   when: replica.lower() == "n" and ipa_servers.changed
 
 - name: configure ip_server replica
-  command: ipa-replica-install  --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
+  command: ipa-replica-install --ip-address="{{static_ip}}" --admin-password="{{admin_password}}" --setup-ca --setup-dns --no-forwarders -U
   when: replica.lower() == "y" and ipa_servers.changed
-
-- name: copy hosts with current IP
-  template:
-    src: final_hosts
-    dest: /etc/hosts

@@ -30,6 +30,7 @@
       shell: sleep 2 && reboot
       async: 1
       poll: 0
+      when: ip_change.changed
 
 
   roles:

@@ -81,7 +81,7 @@
 - name: join domain
   command: >
     ipa-client-install --domain="{{domain}}" --realm="{{domain|upper}}" -p "{{domain_user}}" --password="{{domain_password}}"
-    --enable-dns-updates -U
+    --enable-dns-updates --mkhomedir -U
   args:
     creates: /etc/sssd/sssd.conf
   when: domain_joined == "y"

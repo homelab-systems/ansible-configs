@@ -1,5 +1,5 @@
 ---
 
 domain_joined: "y"
-ou: OU=servers,DC=internal,DC=homelab,DC=systems
-config_ou: OU=server_config,DC=internal,DC=homelab,DC=systems
+ou: OU=windows,OU=servers,DC=internal,DC=homelab,DC=systems
+ansible_winrm_server_cert_validation: ignore

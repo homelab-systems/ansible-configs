@@ -1,0 +1,16 @@
+
+domain: internal.homelab.systems
+#list of OUS to ensure exist
+ou_list:
+  - {name: "servers", parent_path: "DC=internal,DC=homelab,DC=systems"}
+  - {name: "linux", parent_path: "OU=servers,DC=internal,DC=homelab,DC=systems"}
+  - {name: "windows", parent_path: "OU=servers,DC=internal,DC=homelab,DC=systems"}
+  - {name: "server_config", parent_path: "DC=internal,DC=homelab,DC=systems"}
+
+reverse_lookup_zones:
+  - 1.4.10.in-addr.arpa
+  - 2.4.10.in-addr.arpa
+  - 3.4.10.in-addr.arpa
+  - 4.4.10.in-addr.arpa
+  - 5.4.10.in-addr.arpa
+  - 1.168.192.in-addr.arpa

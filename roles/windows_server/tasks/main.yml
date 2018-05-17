@@ -31,6 +31,7 @@
   win_dns_client:
     adapter_names: "*"
     ipv4_addresses: "{{dns_servers}}"
+  when: domain_joined.lower() == "y"
 
 - name: install chocolatey
   win_chocolatey:
@@ -48,7 +49,7 @@
     domain_admin_user: "{{domain_user}}@{{domain}}"
     domain_admin_password: "{{domain_password}}"
     hostname: "{{host_name}}"
-    domain_ou_path: "{{config_ou}}"
+    domain_ou_path: "{{ou}}"
     state: domain
   register: domain_join
   when: domain_joined.lower() == "y"

@@ -1,0 +1,15 @@
+---
+
+- name: enable ad recycle bin
+  win_shell: Enable-ADOptionalFeature "Recycle Bin Feature" -Scope ForestOrConfigurationSet -Target {{domain}} -Confirm:$false
+  args:
+    executable: powershell
+  when: domain_created.changed
+
+- name: create ous 
+  win_dsc:
+    resource_name: xADOrganizationalUnit
+    name: "{{item.name}}"
+    path: "{{item.parent_path}}"
+    ensure: present
+  with_items: "{{ou_list}}"

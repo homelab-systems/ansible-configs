@@ -3,3 +3,4 @@
 domain_joined: "y"
 ou: OU=windows,OU=servers,DC=internal,DC=homelab,DC=systems
 ansible_winrm_server_cert_validation: ignore
+ansible_connection: winrm

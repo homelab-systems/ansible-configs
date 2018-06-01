@@ -7,7 +7,9 @@ ou_list:
   - {name: "windows", parent_path: "OU=servers,DC=internal,DC=homelab,DC=systems"}
   - {name: "server_config", parent_path: "DC=internal,DC=homelab,DC=systems"}
 
-reverse_lookup_zones:
+zones:
+  - homelab.systems
+  - internal.homelab.systems
   - 1.4.10.in-addr.arpa
   - 2.4.10.in-addr.arpa
   - 3.4.10.in-addr.arpa

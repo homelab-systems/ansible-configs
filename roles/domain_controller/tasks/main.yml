@@ -44,14 +44,6 @@
   register: domain_controller
   when: not domain_created.changed
 
-- name: add reverse lookup zones
-  win_dsc:
-    resource_name: xDnsServerADZone
-    name: "{{item}}"
-    replicationscope: domain
-    ensure: present
-  with_items: "{{reverse_lookup_zones}}"
-
 - name: set dns when not pdc
   win_dns_client:
     adapter_names: "*"
@@ -72,3 +64,18 @@
 - name: reboot when dc created
   win_reboot:
   when: domain_created.changed or domain_controller.changed
+
+- name: add zones
+  win_dsc:
+    resource_name: xDnsServerADZone
+    name: "{{item}}"
+    dynamicupdate: secure
+    replicationscope: domain
+    ensure: present
+  with_items: "{{zones}}"
+
+- name: set dns aging
+  win_shell: Set-DNSServerZoneAging -Name "{{item}}" -Aging $true
+  args:
+    executable: powershell
+  with_items: "{{zones}}"

@@ -26,11 +26,6 @@
       prompt: Safe mode password
       private: yes
 
-    - name: primary_dns
-      prompt: primary dns server (Not required if this is the PDC)
-      private: no
-
-
     - name: pdc
       prompt: primary domain controller(y/n)
       private: no

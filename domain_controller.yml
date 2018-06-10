@@ -37,12 +37,15 @@
 
   post_tasks:
     - name: set new IP
-      win_shell: New-NetIPAddress -InterfaceAlias "Ethernet0" -IPAddress {{static_ip}} -DefaultGateway {{gateway}} -PrefixLength 24 ; Restart-Computer
+      win_shell: >
+        New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress {{static_ip}} -DefaultGateway {{gateway}} -PrefixLength 24;
+        Remove-NetIpAddress -InterfaceAlias "Ethernet" -IPAddress {{ansible_ip_addresses[0]}}
+        Remove-WSManInstance -ResourceUri  winrm/config/Listener -SelectorSet @{address="*";transport="https"};
+        Restart-Computer -Force
       args:
         executable: powershell.exe
       poll: 0
       async: 1
-      register: ip_change
       when: static_ip not in ansible_ip_addresses
 
   roles:

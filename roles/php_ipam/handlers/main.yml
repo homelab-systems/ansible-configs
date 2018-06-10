@@ -1,0 +1,8 @@
+---
+
+- name: ensure_httpd
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+    use: service

@@ -1,0 +1,5 @@
+---
+
+- name: configure esx hosts
+  hosts: esx
+  become: no

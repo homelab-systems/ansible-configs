@@ -1,5 +1,14 @@
 ---
 
+- name: set firewall
+  firewalld:
+    service: "{{item}}"
+    permanent: yes
+    state: enabled
+  with_items:
+    - http
+    - https
+
 - name: install php-ipam
   yum:
     name: "{{item}}"
@@ -19,4 +28,81 @@
     - php-xml
     - php-xml
     - php-mysql
-    - git 
+    - php-mbstring
+    - git
+    - php-mcrypt
+
+- name: start and enable mariadb
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+    use: service
+  register: mariadb
+
+- name: secure db
+  expect:
+    command: mysql_secure_installation
+    responses:
+      "Enter current password for root": "\n"
+      "Set root password": "Y"
+      "New password": "{{db_pass}}"
+      "Remove anonymous users": "Y"
+      "Re-enter new password": "{{db_pass}}"
+      "Disallow root login remotely": "Y"
+      "Remove test database and access to it": "Y"
+      "Reload privilege tables now": "Y"
+  when: mariadb.changed
+
+- name: set php timezone
+  ini_file:
+    path: /etc/php.ini
+    section: Date
+    option: date.timezone
+    value: America/New_York
+
+- name: git clone phpipam
+  git:
+    repo: https://github.com/phpipam/phpipam.git
+    version: "{{ipam_version}}"
+    dest: /var/www/html/
+  notify: ensure_httpd
+
+- name: copy config.php
+  template:
+    src: config.php
+    dest: /var/www/html/config.php
+
+- name: own files
+  file:
+    path: /var/www/html
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0755
+    setype: httpd_sys_content_t
+    recurse: yes
+
+- name: set cron jobs
+  cron:
+    name: "{{item.key}}"
+    special_time: daily
+    job: "/usr/bin/php /var/www/html/functions/scripts/{{item.value.job}}"
+  with_dict:
+    discover:
+      job: discoveryCheck.php
+    pingcheck:
+      job: pingCheck.php
+    remove_stale_addresses:
+      job: remove_offline_addresses.php
+
+- name: set contexts
+  file:
+    path: /var/www/html/{{item}}
+    setype: httpd_sys_rw_content_t
+    recurse: yes
+  with_items:
+    - app/admin/import-export/upload/
+    - app/subnets/import-subnet/upload/
+    - css/1.3.1/images/logo/
+

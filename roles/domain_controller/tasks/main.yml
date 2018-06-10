@@ -65,6 +65,10 @@
   win_reboot:
   when: domain_created.changed or domain_controller.changed
 
+- pause:
+    seconds: 40
+  when: domain_created.changed or domain_controller.changed
+
 - name: add zones
   win_dsc:
     resource_name: xDnsServerADZone

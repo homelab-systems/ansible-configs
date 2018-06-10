@@ -19,18 +19,18 @@
 
 - name: add admin user
   user:
-    name: administrator
+    name: admin
     groups: wheel
     append: yes
 
 - name: add ssh key for admin user
   authorized_key:
-    user: administrator
+    user: admin
     state: present
     key: "{{item}}"
   with_items:
-    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0gaDkB9pbqRP6M9+K8sl6V9f1jkcZJAdogn1qS59bV372FNLtVKJB9FBZyUttjfhrruiV+ZZok2i2u07br9L5S6ARKPxzIitzrtQuvsbGtDwJtOrXsgMn4hQe+7x9JCGlOQ+xbmniC2MiCUbUTlBCDNA+TAaH9XnoRMyWUyVUJbU+u9zlcT+8OC6wvEk0GxjukcNuwiANuvfjjiow9e3qA1wUQukLGjSWDufWLp9hJMKkVHQ1m9I/Yw84LejBKq4YizhfjMah9yoq7KrnzURkO6i2T6aSYT/1APWm+jw9iOH9VP+xbVD9RAMFvb49yU11rLVgS3e/+tdosZIRtFYJ pbove-pub
-    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCipp3Kb/qJ/fbi01zbPbURbSjJil79+2HVabpvV1BMZhaHXZD7s9FYcj//FmaNvburWuNV5UDn/2gHxP7JyutgfPUyI67x7j83+shZWHDNAIs7sMy9B3EBIZgZ/FvxkL7rGa1IoEzB60mIgmLdydt+oNgjdcEFToXeK+2hA397LdTvTt5SB57zL3HUKCI7bPZp9eHJ+UDFSdeUFOxOsTcf1D8iY5qk+imswy83HjvC1xcfVd3ySMBKei5Zn7a6Ie1SqmvxUTNc6DVAPx3a/Fg6svnRmDY1gvzc89pCle8C1XZh0pL25dLSV8gYOCCifw8DCJrj5EMnqMEzJxc1mWR7 pbove@ammo-box 
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqnl1fAQ+bu2SoXJNi+1i4fn4cQr9NYusoDu6KTVwq3PBWySkR9YBt4poiElTFPEumYo6Zd9fZ0jUXTv+55TcjIGNlm1gXg5IXGag1RfAXXUzcFSgL5iBMx2xjxJkqiDaLYHtvuy+RTmrkOmF3OB+wTFT8oxj1tLXkcjGcMhKuqjDmXTvSuQG/BowLvLdnhBUzJVh0J7d1iElrrVJ/M2trP70MVWPuiF2T2j105zKsQGT733jR9GgI/uxmlv4e3B6xnSRInWL6VaX6u/i7oG2IBOOaBlOSPu53JhRWVqQZ7DdZj9pUpKLU+PuL14/SV4N4c9LRG3/Ylq2sXQAwfmDF pbove-pub
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCipp3Kb/qJ/fbi01zbPbURbSjJil79+2HVabpvV1BMZhaHXZD7s9FYcj//FmaNvburWuNV5UDn/2gHxP7JyutgfPUyI67x7j83+shZWHDNAIs7sMy9B3EBIZgZ/FvxkL7rGa1IoEzB60mIgmLdydt+oNgjdcEFToXeK+2hA397LdTvTt5SB57zL3HUKCI7bPZp9eHJ+UDFSdeUFOxOsTcf1D8iY5qk+imswy83HjvC1xcfVd3ySMBKei5Zn7a6Ie1SqmvxUTNc6DVAPx3a/Fg6svnRmDY1gvzc89pCle8C1XZh0pL25dLSV8gYOCCifw8DCJrj5EMnqMEzJxc1mWR7 pbove@ammo-box
 
 - name: install epel-release
   yum:
@@ -44,7 +44,7 @@
     state: present
     update_cache: yes
   with_items:
-    - ipa-client
+    - realmd
     - python2
     - python2-pip
     - python34
@@ -54,7 +54,6 @@
     - libsemanage-python
     - screen
     - wget
-
   when: ansible_distribution == "CentOS"
   notify: ensure_ntpd
 
@@ -79,9 +78,8 @@
     dest: /etc/hosts
 
 - name: join domain
-  command: >
-    ipa-client-install --domain="{{domain}}" --realm="{{domain|upper}}" -p "{{domain_user}}" --password="{{domain_password}}"
-    --enable-dns-updates --mkhomedir -U
+  shell: >
+    realm join --user="{{domain_user}}" --computer-ou="{{}}"
   args:
     creates: /etc/sssd/sssd.conf
   when: domain_joined == "y"

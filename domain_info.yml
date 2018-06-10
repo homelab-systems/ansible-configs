@@ -10,9 +10,6 @@ ou_list:
 zones:
   - homelab.systems
   - internal.homelab.systems
-  - 1.4.10.in-addr.arpa
-  - 2.4.10.in-addr.arpa
-  - 3.4.10.in-addr.arpa
-  - 4.4.10.in-addr.arpa
-  - 5.4.10.in-addr.arpa
+  - 4.10.in-addr.arpa
+  - 6.10.in-addr.arpa
   - 1.168.192.in-addr.arpa

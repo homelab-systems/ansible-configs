@@ -1,0 +1,45 @@
+---
+
+- name: deploy php_ipam
+  hosts: all
+  become: yes
+  vars_files:
+    - network_info.yml
+
+  vars_prompt:
+
+    - name: host_name
+      prompt: host name
+      private: no
+
+    - name: static_ip
+      prompt: Enter static ip
+      private: no
+
+    - name: db_pass
+      prompt: db password
+      private: yes
+
+    - name: domain_user
+      prompt: domain user
+      private: no
+
+    - name: domain_password
+      prompt: domain password
+      private: yes
+
+  vars:
+    domain_joined: n
+    ipam_version: 1.3
+
+  post_tasks:
+    - name: restart
+      shell: sleep 2 && reboot
+      async: 1
+      poll: 0
+      when: ip_change.changed
+
+
+  roles:
+    - linux_common
+    - php_ipam
